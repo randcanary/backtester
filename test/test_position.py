@@ -3,7 +3,7 @@ from position import Position  # Adjust import path as needed
 
 def test_initialization():
     pos = Position(entry_price=100, quantity=10, stop_loss=90, take_profit=110)
-    assert pos.entry_price == 100
+    assert pos.mean_price == 100
     assert pos.quantity == 10
     assert pos.stop_loss == 90
     assert pos.take_profit == 110
@@ -41,3 +41,17 @@ def test_no_double_close():
     pos.close_position(120)  # Attempt to close again
     second_pnl = pos.get_realized_pnl()
     assert first_pnl == second_pnl  # Ensure it doesn't change after the first close
+
+def test_increase_position():
+    pos = Position(entry_price=100, quantity=10, stop_loss=80, take_profit=100)
+    pos.increase_position(current_price = 110, quantity=10, stop_loss=90, take_profit=110)
+    assert pos.mean_price == 105
+    assert pos.quantity == 20
+    assert pos.stop_loss == 90
+    assert pos.take_profit == 110
+    pos.increase_position(current_price = 90, quantity = 10, stop_loss=80, take_profit=100)
+    assert pos.mean_price == 100
+    assert pos.quantity == 30
+    assert pos.stop_loss == 80
+    assert pos.take_profit == 100
+

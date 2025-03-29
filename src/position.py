@@ -6,7 +6,7 @@ class Position:
         """
         Initializes the Librarian class. 
         """
-        self.entry_price = entry_price
+        self.mean_price = entry_price
         self.current_price = entry_price
         self.quantity = quantity
         self.stop_loss = stop_loss
@@ -17,11 +17,21 @@ class Position:
     def update_price(self, price):
         """Updates the latest market price."""
         self.current_price = price
+
+    def increase_position(self, current_price, quantity, stop_loss = None, take_profit = None):
+
+        self.mean_price = (self.mean_price*self.quantity + current_price*quantity) / (self.quantity + quantity)
+
+        self.current_price = current_price
+        self.quantity += quantity
+        
+        self.stop_loss = stop_loss
+        self.take_profit = take_profit
     
 
     def get_unrealized_pnl(self):
         """Calculates unrealized profit/loss if the position were closed now."""
-        return (self.current_price - self.entry_price) * self.quantity
+        return (self.current_price - self.mean_price) * self.quantity
     
     def get_realized_pnl(self):
         """Calculates realized profit/loss if the position were closed now."""
@@ -45,6 +55,6 @@ class Position:
         if self.status == "closed":
             return  # Already closed
 
-        self.realized_pnl = (price - self.entry_price) * self.quantity
+        self.realized_pnl = (price - self.mean_price) * self.quantity
         self.status = "closed"
     

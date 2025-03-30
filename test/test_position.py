@@ -55,3 +55,29 @@ def test_increase_position():
     assert pos.stop_loss == 80
     assert pos.take_profit == 100
 
+def test_decrease_position_partial():
+    """Test selling part of a position and updating realized PnL."""
+    position = Position(entry_price=50, quantity=100)
+    position.decrease_position(sell_quantity=40, sell_price=55)
+
+    assert position.quantity == 60  # 100 - 40 = 60 shares remaining
+    assert position.current_price == 55
+    assert position.get_realized_pnl() == (55 - 50) * 40  # Profit on 40 shares
+    assert position.status == "open"  # Position should still be open
+
+def test_decrease_position_fully():
+    """Test selling all shares and closing the position."""
+    position = Position(entry_price=50, quantity=100)
+    position.decrease_position(sell_quantity=100, sell_price=55)
+
+    assert position.quantity == 0  # All shares sold
+    assert position.get_realized_pnl() == (55 - 50) * 100  # Profit on all shares
+    assert position.status == "closed"  # Position should now be closed
+
+def test_decrease_position_too_much():
+    """Test selling more shares than available should raise an error."""
+    position = Position(entry_price=50, quantity=100)
+
+    with pytest.raises(ValueError, match="Cannot sell more than the current position size"):
+        position.decrease_position(sell_quantity=150, sell_price=55)  # More than available
+
